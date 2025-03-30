@@ -19,7 +19,8 @@ switch ($method) {
             $input = json_decode(file_get_contents("php://input"), true);
 
             error_log(print_r($input, true)); // Debugging: Check received data in error log
-
+            $user_id = isset($input['user_id']) ? intval($input['user_id']) : null;
+        
             if (!isset($input['name']) || empty($input['name'])) {
                   echo json_encode(["status" => 400, "message" => "Category name is required"]);
                   exit;
@@ -36,7 +37,7 @@ switch ($method) {
                   'user_id' => $user_id,  // Assign logged-in user
                   'created_at' => date('Y-m-d H:i:s')
             ];
-
+            // print_r ($insertData);
             $result = $d->insert('categories', $insertData);
 
             if ($result) {

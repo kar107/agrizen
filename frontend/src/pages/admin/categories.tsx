@@ -54,41 +54,44 @@ const CategoryManagement: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setError("");
-    
-      try {
-        let response;
-        if (editing) {
-          response = await axios.put(API_URL, JSON.stringify(formData), {
-            headers: { "Content-Type": "application/json" },
-          });
-        } else {
-          response = await axios.post(API_URL, JSON.stringify(formData), {
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-    
-        console.log("Server Response:", response.data); // Debugging
-    
-        if (response.data.status === 200) {
-          fetchCategories();
-          setEditing(false);
-          setFormData({
-            id: null,
-            name: "",
-            description: "",
-            user_id: null,
-            status: "active",
-          });
-        } else {
-          setError(response.data.message);
-        }
-      } catch (error: any) {
-        console.error("Error processing request:", error);
-        setError("Error processing request. Please try again.");
+    e.preventDefault();
+    setError("");
+
+    try {
+      let response;
+      if (editing) {
+        response = await axios.put(API_URL, JSON.stringify(formData), {
+          headers: { "Content-Type": "application/json" },
+        });
+      } else {
+        response = await axios.post(API_URL, JSON.stringify(formData), {
+          headers: { "Content-Type": "application/json" },
+        });
       }
-    };
+
+      console.log("Server Response:", response.data); // Debugging
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+
+      let userId = userData?.userid || null;
+      console.log("User ID from localStorage:", userId);
+      if (response.data.status === 200) {
+        fetchCategories();
+        setEditing(false);
+        setFormData({
+          id: null,
+          name: "",
+          description: "",
+          user_id: userId,
+          status: "active",
+        });
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error: any) {
+      console.error("Error processing request:", error);
+      setError("Error processing request. Please try again.");
+    }
+  };
   const handleEdit = (category: Category) => {
     setFormData({ ...category });
     setEditing(true);
@@ -143,7 +146,10 @@ const CategoryManagement: React.FC = () => {
               <option value="inactive">Inactive</option>
             </select>
           </div>
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded mt-3">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded mt-3"
+          >
             {editing ? "Update" : "Add"} Category
           </button>
         </form>
@@ -169,10 +175,16 @@ const CategoryManagement: React.FC = () => {
                   <td className="border p-2">{category.description}</td>
                   <td className="border p-2">{category.status}</td>
                   <td className="border p-2">
-                    <button onClick={() => handleEdit(category)} className="bg-yellow-500 text-white px-2 py-1 rounded mr-2">
+                    <button
+                      onClick={() => handleEdit(category)}
+                      className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
+                    >
                       Edit
                     </button>
-                    <button onClick={() => handleDelete(category.id)} className="bg-red-500 text-white px-2 py-1 rounded">
+                    <button
+                      onClick={() => handleDelete(category.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded"
+                    >
                       Delete
                     </button>
                   </td>

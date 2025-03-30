@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useMemo,useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Users, Package, Bell, ShoppingCart, Settings, BarChart2,
@@ -19,16 +19,28 @@ interface MenuItem {
 }
 
 const DashboardSidebar: React.FC<SidebarProps> = ({ type, onUserManagementClick }) => {
+ 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+    let userData = localStorage.getItem("user");
+    useEffect(() => {
+      if (!userData) {
+          navigate("/login");
+      }
+    }, [userData]);
+  const handleLogout = () => {
+    localStorage.removeItem('user'); // Remove user session
+    navigate('/login'); // Redirect to login page
+  };
 
   const menuItems: MenuItem[] = useMemo(() => {
     if (type === 'admin') {
       return [
         { icon: Home, label: 'Dashboard', path: '/admin/dashboard' },
-        { icon: UserIcon, label: 'Profile', path: '/admin/profile' }, // 👈 Added Profile
+        { icon: UserIcon, label: 'Profile', path: '/admin/profile' },
         { icon: Users, label: 'User Management', path: '/admin/UserManagement', onClick: onUserManagementClick },
-        { icon: Folder, label: 'Categories', path: '/admin/categories', onClick: onUserManagementClick },
+        { icon: Folder, label: 'Categories', path: '/admin/categories',onClick: onUserManagementClick },
         { icon: Package, label: 'Products', path: '/admin/products' },
         { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
         { icon: Bell, label: 'Notifications', path: '/admin/notifications' },
@@ -39,7 +51,7 @@ const DashboardSidebar: React.FC<SidebarProps> = ({ type, onUserManagementClick 
     }
     return [
       { icon: Home, label: 'Dashboard', path: '/supplier/dashboard' },
-      { icon: UserIcon, label: 'Profile', path: '/supplier/profile' }, // 👈 Added Profile
+      { icon: UserIcon, label: 'Profile', path: '/supplier/profile' },
       { icon: Folder, label: 'Categories', path: '/supplier/categories' },
       { icon: Package, label: 'My Products', path: '/supplier/products' },
       { icon: ShoppingCart, label: 'Orders', path: '/supplier/orders' },
@@ -87,13 +99,13 @@ const DashboardSidebar: React.FC<SidebarProps> = ({ type, onUserManagementClick 
           >
             {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
           </button>
-          <Link
-            to="/"
-            className="flex items-center space-x-3 p-3 rounded-lg mt-2 hover:bg-gray-50 text-gray-700"
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-3 p-3 rounded-lg mt-2 hover:bg-gray-50 text-gray-700 w-full"
           >
             <LogOut className="h-5 w-5" />
             {!isCollapsed && <span>Logout</span>}
-          </Link>
+          </button>
         </div>
       </div>
     </motion.div>

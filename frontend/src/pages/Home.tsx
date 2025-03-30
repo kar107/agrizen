@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Plane as Plant, BarChart3, Users, Cloud } from 'lucide-react';
 
 const Home = () => {
+  
   return (
     <div>
       {/* Hero Section */}
