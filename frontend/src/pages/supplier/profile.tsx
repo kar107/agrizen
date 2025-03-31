@@ -68,7 +68,7 @@ const Profile = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <DashboardSidebar type="admin" />
+      <DashboardSidebar type="supplier" />
       <div className="flex-1 ml-[280px] p-6">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} 
         className="bg-white p-8 rounded-2xl shadow-lg max-w-lg mx-auto mt-10 border border-gray-200">

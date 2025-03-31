@@ -15,6 +15,9 @@ import UserManagement from './pages/admin/UserManagement';
 import CategoryManagement from './pages/admin/categories';
 import ProductManagement from './pages/admin/products';
 import ProfileManagement from './pages/admin/profile';
+import SupplierCategoryManagement from './pages/supplier/categories';
+import SupplierProductManagement from './pages/supplier/products';
+import SupplierProfileManagement from './pages/supplier/profile';
 
 
 
@@ -40,6 +43,9 @@ function Layout() {
           <Route path="/admin/categories" element={<CategoryManagement />} />
           <Route path="/admin/products" element={<ProductManagement />} />
           <Route path="/admin/profile" element={<ProfileManagement />} />
+          <Route path="/supplier/categories" element={<SupplierCategoryManagement />} />
+          <Route path="/supplier/products" element={<SupplierProductManagement />} />
+          <Route path="/supplier/profile" element={<SupplierProfileManagement />} />
 
         </Routes>
       </main>

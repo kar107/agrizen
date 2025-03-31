@@ -25,7 +25,6 @@ if (isset($_POST['tag']) && $_POST['tag'] == "login") {
 
             // Verify password
             if (password_verify($password,$user['password_hash'])) {
-                if ($user['email_verified'] == 1) {
                     $_SESSION['userid'] = $user['userid'];
                     $_SESSION['role'] = $user['role'];
 
@@ -38,10 +37,7 @@ if (isset($_POST['tag']) && $_POST['tag'] == "login") {
                         'role' => $user['role'],
                         'created_at' => $user['created_at']
                     ];
-                } else {
-                    $response['message'] = 'Email not verified';
-                    $response['status'] = '403';
-                }
+               
             } else {
                 $response['message'] = 'Invalid password';
                 $response['status'] = '401';

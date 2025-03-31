@@ -20,7 +20,7 @@ switch ($method) {
 
             error_log(print_r($input, true)); // Debugging: Check received data in error log
             $user_id = isset($input['user_id']) ? intval($input['user_id']) : null;
-        
+           
             if (!isset($input['name']) || empty($input['name'])) {
                   echo json_encode(["status" => 400, "message" => "Category name is required"]);
                   exit;
