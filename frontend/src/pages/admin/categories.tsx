@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import DashboardSidebar from "../../components/DashboardSidebar";
+import Swal from "sweetalert2";
 
 interface Category {
   id: number;
@@ -20,21 +21,13 @@ const CategoryManagement: React.FC = () => {
     user_id: null,
     status: "active",
   });
-
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
+
   const API_URL = "http://localhost/agrizen/backend/adminController/categoryController.php";
 
   useEffect(() => {
     fetchCategories();
-  }, []);
-
-  // ✅ Ensure user_id is always available when the component loads
-  useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    let userId = userData?.userid || null;
-    console.log("Fetched User ID from localStorage:", userId);
-    setFormData((prev) => ({ ...prev, user_id: userId }));
   }, []);
 
   const fetchCategories = async () => {
@@ -43,70 +36,111 @@ const CategoryManagement: React.FC = () => {
       setCategories(response.data.data || []);
     } catch (error) {
       console.error("Error fetching categories", error);
-      setError("Failed to fetch categories. Please check API connection.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to fetch categories. Please check API connection.',
+      });
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const userId = userData?.userid || null;
+
     try {
+      const dataToSubmit = { ...formData, user_id: userId };
+      
       let response;
       if (editing) {
-        response = await axios.put(API_URL, JSON.stringify(formData), {
+        response = await axios.put(API_URL, JSON.stringify(dataToSubmit), {
           headers: { "Content-Type": "application/json" },
         });
       } else {
-        response = await axios.post(API_URL, JSON.stringify(formData), {
+        response = await axios.post(API_URL, JSON.stringify(dataToSubmit), {
           headers: { "Content-Type": "application/json" },
         });
       }
 
-      console.log("Server Response:", response.data);
-
       if (response.data.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: editing ? 'Category updated successfully!' : 'Category added successfully!',
+        });
         fetchCategories();
         setEditing(false);
         setFormData({
           id: null,
           name: "",
           description: "",
-          user_id: JSON.parse(localStorage.getItem("user") || "{}")?.userid || null, // Ensure user_id persists
+          user_id: userId,
           status: "active",
         });
       } else {
-        setError(response.data.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: response.data.message || 'Something went wrong!',
+        });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error processing request:", error);
-      setError("Error processing request. Please try again.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error processing request. Please try again.',
+      });
     }
   };
 
-  const handleEdit = (category: Category) => {
+  const handleEdit = (category) => {
     setFormData({ ...category });
     setEditing(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Are you sure you want to delete this category?")) {
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
       try {
         await axios.delete(`${API_URL}?id=${id}`);
+        Swal.fire(
+          'Deleted!',
+          'Your category has been deleted.',
+          'success'
+        );
         fetchCategories();
       } catch (error) {
         console.error("Error deleting category", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to delete category',
+        });
       }
     }
   };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <DashboardSidebar type="supplier" />
+      <DashboardSidebar type="admin" />
       <div className="flex-1 ml-[280px] p-6">
         <h1 className="text-3xl font-bold mb-4">Category Management</h1>
 
@@ -168,17 +202,25 @@ const CategoryManagement: React.FC = () => {
                   <td className="border p-2">{category.id}</td>
                   <td className="border p-2">{category.name}</td>
                   <td className="border p-2">{category.description}</td>
-                  <td className="border p-2">{category.status}</td>
+                  <td className="border p-2">
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      category.status === "active" 
+                        ? "bg-green-100 text-green-800" 
+                        : "bg-red-100 text-red-800"
+                    }`}>
+                      {category.status}
+                    </span>
+                  </td>
                   <td className="border p-2">
                     <button
                       onClick={() => handleEdit(category)}
-                      className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
+                      className="bg-yellow-500 text-white px-2 py-1 rounded mr-2 hover:bg-yellow-600 transition"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(category.id)}
-                      className="bg-red-500 text-white px-2 py-1 rounded"
+                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
                     >
                       Delete
                     </button>

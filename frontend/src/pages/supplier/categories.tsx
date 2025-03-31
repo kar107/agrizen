@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import DashboardSidebar from "../../components/DashboardSidebar";
+import Swal from "sweetalert2";
 
 interface Category {
   id: number;
@@ -22,18 +23,15 @@ const CategoryManagement: React.FC = () => {
   });
 
   const [editing, setEditing] = useState(false);
-  const [error, setError] = useState("");
   const API_URL = "http://localhost/agrizen/backend/adminController/categoryController.php";
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
-  // ✅ Ensure user_id is always available when the component loads
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
     let userId = userData?.userid || null;
-    console.log("Fetched User ID from localStorage:", userId);
     setFormData((prev) => ({ ...prev, user_id: userId }));
   }, []);
 
@@ -42,8 +40,7 @@ const CategoryManagement: React.FC = () => {
       const response = await axios.get(API_URL);
       setCategories(response.data.data || []);
     } catch (error) {
-      console.error("Error fetching categories", error);
-      setError("Failed to fetch categories. Please check API connection.");
+      Swal.fire("Error", "Failed to fetch categories. Please check API connection.", "error");
     }
   };
 
@@ -53,8 +50,6 @@ const CategoryManagement: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-
     try {
       let response;
       if (editing) {
@@ -67,8 +62,6 @@ const CategoryManagement: React.FC = () => {
         });
       }
 
-      console.log("Server Response:", response.data);
-
       if (response.data.status === 200) {
         fetchCategories();
         setEditing(false);
@@ -76,15 +69,15 @@ const CategoryManagement: React.FC = () => {
           id: null,
           name: "",
           description: "",
-          user_id: JSON.parse(localStorage.getItem("user") || "{}")?.userid || null, // Ensure user_id persists
+          user_id: JSON.parse(localStorage.getItem("user") || "{}")?.userid || null,
           status: "active",
         });
+        Swal.fire("Success", `Category ${editing ? "updated" : "added"} successfully!`, "success");
       } else {
-        setError(response.data.message);
+        Swal.fire("Error", response.data.message, "error");
       }
-    } catch (error: any) {
-      console.error("Error processing request:", error);
-      setError("Error processing request. Please try again.");
+    } catch (error) {
+      Swal.fire("Error", "Error processing request. Please try again.", "error");
     }
   };
 
@@ -94,14 +87,25 @@ const CategoryManagement: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm("Are you sure you want to delete this category?")) {
-      try {
-        await axios.delete(`${API_URL}?id=${id}`);
-        fetchCategories();
-      } catch (error) {
-        console.error("Error deleting category", error);
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`${API_URL}?id=${id}`);
+          fetchCategories();
+          Swal.fire("Deleted!", "Category has been deleted.", "success");
+        } catch (error) {
+          Swal.fire("Error", "Error deleting category.", "error");
+        }
       }
-    }
+    });
   };
 
   return (
@@ -110,9 +114,7 @@ const CategoryManagement: React.FC = () => {
       <div className="flex-1 ml-[280px] p-6">
         <h1 className="text-3xl font-bold mb-4">Category Management</h1>
 
-        {/* Form */}
         <form className="bg-white p-4 shadow rounded" onSubmit={handleSubmit}>
-          {error && <p className="text-red-500">{error}</p>}
           <div className="grid grid-cols-2 gap-4">
             <input
               type="text"
@@ -141,15 +143,11 @@ const CategoryManagement: React.FC = () => {
               <option value="inactive">Inactive</option>
             </select>
           </div>
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded mt-3"
-          >
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded mt-3">
             {editing ? "Update" : "Add"} Category
           </button>
         </form>
 
-        {/* Category List */}
         <div className="mt-6 bg-white shadow rounded p-4">
           <h2 className="text-xl font-bold mb-2">Categories</h2>
           <table className="w-full border">
@@ -170,18 +168,8 @@ const CategoryManagement: React.FC = () => {
                   <td className="border p-2">{category.description}</td>
                   <td className="border p-2">{category.status}</td>
                   <td className="border p-2">
-                    <button
-                      onClick={() => handleEdit(category)}
-                      className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(category.id)}
-                      className="bg-red-500 text-white px-2 py-1 rounded"
-                    >
-                      Delete
-                    </button>
+                    <button onClick={() => handleEdit(category)} className="bg-yellow-500 text-white px-2 py-1 rounded mr-2">Edit</button>
+                    <button onClick={() => handleDelete(category.id)} className="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
                   </td>
                 </tr>
               ))}

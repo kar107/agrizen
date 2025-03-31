@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import DashboardSidebar from "../../components/DashboardSidebar";
+import Swal from "sweetalert2";
 
 interface Product {
   id: number;
@@ -17,20 +18,8 @@ interface Product {
 
 const ProductManagement: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
-    []
-  );
-  const [formData, setFormData] = useState<{
-    id: number | null;
-    name: string;
-    description: string;
-    category_id: number | "";
-    price: number | "";
-    stock_quantity: number | "";
-    unit: string;
-    status: string;
-    user_id: number | null;
-  }>({
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
+  const [formData, setFormData] = useState({
     id: null,
     name: "",
     description: "",
@@ -41,14 +30,11 @@ const ProductManagement: React.FC = () => {
     status: "active",
     user_id: null,
   });
-
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
 
-  const API_URL =
-    "http://localhost/agrizen/backend/adminController/productController.php";
-  const CATEGORY_API_URL =
-    "http://localhost/agrizen/backend/adminController/categoryController.php";
+  const API_URL = "http://localhost/agrizen/backend/adminController/productController.php";
+  const CATEGORY_API_URL = "http://localhost/agrizen/backend/adminController/categoryController.php";
 
   useEffect(() => {
     fetchProducts();
@@ -57,13 +43,30 @@ const ProductManagement: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(API_URL);
-      setProducts(response.data.data || []);
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      const userId = userData?.userid || null;
+  
+      if (!userId) {
+        console.error("User ID not found.");
+        return;
+      }
+  
+      const response = await axios.get(`${API_URL}?user_id=${userId}`);
+      
+      // If the API doesn't filter, filter the response manually
+      const filteredProducts = response.data.data.filter(product => product.user_id === userId);
+  
+      setProducts(filteredProducts);
     } catch (error) {
       console.error("Error fetching products", error);
-      setError("Failed to fetch products. Please check API connection.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to fetch products. Please check API connection.',
+      });
     }
   };
+  
 
   const fetchCategories = async () => {
     try {
@@ -74,39 +77,35 @@ const ProductManagement: React.FC = () => {
     }
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
     let userId = userData?.userid || null;
 
-    // Ensure `user_id` is included in formData before submission
-    const updatedFormData = { ...formData, user_id: userId };
-
-    console.log("Submitting formData:", updatedFormData); // Debugging Log
-
     try {
       let response;
       if (editing) {
-        response = await axios.put(API_URL, JSON.stringify(updatedFormData), {
+        response = await axios.put(API_URL, JSON.stringify({ ...formData, user_id: userId }), {
           headers: { "Content-Type": "application/json" },
         });
       } else {
-        response = await axios.post(API_URL, JSON.stringify(updatedFormData), {
+        response = await axios.post(API_URL, JSON.stringify({ ...formData, user_id: userId }), {
           headers: { "Content-Type": "application/json" },
         });
       }
 
-      console.log("Server Response:", response.data);
-
       if (response.data.status === 200) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: editing ? 'Product updated successfully!' : 'Product added successfully!',
+        });
         fetchProducts();
         setEditing(false);
         setFormData({
@@ -121,26 +120,55 @@ const ProductManagement: React.FC = () => {
           user_id: userId,
         });
       } else {
-        setError(response.data.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: response.data.message || 'Something went wrong!',
+        });
       }
     } catch (error) {
       console.error("Error processing request:", error);
-      setError("Error processing request. Please try again.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error processing request. Please try again.',
+      });
     }
   };
 
-  const handleEdit = (product: Product) => {
+  const handleEdit = (product) => {
     setFormData({ ...product });
     setEditing(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
       try {
         await axios.delete(`${API_URL}?id=${id}`);
+        Swal.fire(
+          'Deleted!',
+          'Your product has been deleted.',
+          'success'
+        );
         fetchProducts();
       } catch (error) {
         console.error("Error deleting product", error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to delete product',
+        });
       }
     }
   };
@@ -213,7 +241,6 @@ const ProductManagement: React.FC = () => {
                 <th className="border p-2">ID</th>
                 <th className="border p-2">Name</th>
                 <th className="border p-2">Price</th>
-                {/* <th className="border p-2">Status</th> */}
                 <th className="border p-2">Actions</th>
               </tr>
             </thead>
@@ -223,17 +250,6 @@ const ProductManagement: React.FC = () => {
                   <td className="border p-2">{product.id}</td>
                   <td className="border p-2">{product.name}</td>
                   <td className="border p-2">${product.price}</td>
-                  {/* <td className="border p-2">
-                    <span
-                      className={
-                        product.status === "active"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }
-                    >
-                      {product.status}
-                    </span>
-                  </td> */}
                   <td className="border p-2">
                     <button
                       onClick={() => handleEdit(product)}
