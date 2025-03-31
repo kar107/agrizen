@@ -24,16 +24,17 @@ switch ($method) {
             }
             
             // print_r ($input);
-            error_log(print_r($input, true)); // Debugging: Check received data in error log
+            // print_r($inputData);
+            // exit(); // Debugging: Check received data in error log
             $user_id = isset($input['user_id']) ? intval($input['user_id']) : null;
             
-            if (!isset($input['name']) || empty($input['name'])) {
+            if (!isset($inputData['name']) || empty($inputData['name'])) {
                   echo json_encode(["status" => 400, "message" => "Product name is required"]);
                   exit;
             }
 
             $insertData = [
-                  'name' => trim($input['name']),
+                  'name' => trim($inputData['name']),
                   'description' => isset($input['description']) ? trim($input['description']) : '',
                   'category_id' => isset($input['category_id']) ? intval($input['category_id']) : null,
                   'price' => isset($input['price']) ? floatval($input['price']) : 0,
