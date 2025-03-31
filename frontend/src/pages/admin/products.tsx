@@ -45,8 +45,10 @@ const ProductManagement: React.FC = () => {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
 
-  const API_URL = "http://localhost/agrizen/backend/adminController/productController.php";
-  const CATEGORY_API_URL = "http://localhost/agrizen/backend/adminController/categoryController.php";
+  const API_URL =
+    "http://localhost/agrizen/backend/adminController/productController.php";
+  const CATEGORY_API_URL =
+    "http://localhost/agrizen/backend/adminController/categoryController.php";
 
   useEffect(() => {
     fetchProducts();
@@ -82,20 +84,28 @@ const ProductManagement: React.FC = () => {
     e.preventDefault();
     setError("");
 
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    let userId = userData?.userid || null;
+
+    // Ensure `user_id` is included in formData before submission
+    const updatedFormData = { ...formData, user_id: userId };
+
+    console.log("Submitting formData:", updatedFormData); // Debugging Log
+
     try {
       let response;
       if (editing) {
-        response = await axios.put(API_URL, JSON.stringify(formData), {
+        response = await axios.put(API_URL, JSON.stringify(updatedFormData), {
           headers: { "Content-Type": "application/json" },
         });
       } else {
-        response = await axios.post(API_URL, JSON.stringify(formData), {
+        response = await axios.post(API_URL, JSON.stringify(updatedFormData), {
           headers: { "Content-Type": "application/json" },
         });
       }
-      const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
-      let userId = userData?.userid || null;
+      console.log("Server Response:", response.data);
+
       if (response.data.status === 200) {
         fetchProducts();
         setEditing(false);
@@ -186,7 +196,10 @@ const ProductManagement: React.FC = () => {
               required
             />
           </div>
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded mt-3">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded mt-3"
+          >
             {editing ? "Update" : "Add"} Product
           </button>
         </form>
@@ -200,7 +213,7 @@ const ProductManagement: React.FC = () => {
                 <th className="border p-2">ID</th>
                 <th className="border p-2">Name</th>
                 <th className="border p-2">Price</th>
-                <th className="border p-2">Status</th>
+                {/* <th className="border p-2">Status</th> */}
                 <th className="border p-2">Actions</th>
               </tr>
             </thead>
@@ -210,7 +223,31 @@ const ProductManagement: React.FC = () => {
                   <td className="border p-2">{product.id}</td>
                   <td className="border p-2">{product.name}</td>
                   <td className="border p-2">${product.price}</td>
-                  <td className="border p-2">{product.status}</td>
+                  {/* <td className="border p-2">
+                    <span
+                      className={
+                        product.status === "active"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                    >
+                      {product.status}
+                    </span>
+                  </td> */}
+                  <td className="border p-2">
+                    <button
+                      onClick={() => handleEdit(product)}
+                      className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(product.id)}
+                      className="bg-red-500 text-white px-2 py-1 rounded"
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

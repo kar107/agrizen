@@ -6,36 +6,79 @@ import {
   ShoppingCart,
   Users,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import DashboardSidebar from "../../components/DashboardSidebar";
 
 const AdminDashboard = () => {
-  const stats = [
-    { title: "Total Users", value: "2,345", icon: Users, change: "+12%" },
-    { title: "Products Listed", value: "1,456", icon: Package, change: "+8%" },
-    { title: "Total Orders", value: "892", icon: ShoppingCart, change: "+15%" },
-    { title: "Active Alerts", value: "24", icon: AlertTriangle, change: "+3%" },
-  ];
-  const userData = localStorage.getItem("user");
+  const [stats, setStats] = useState([
+    { title: "Total Users", value: "0", icon: Users, change: "+0%" },
+    { title: "Products Listed", value: "0", icon: Package, change: "+0%" },
+    { title: "Total Orders", value: "0", icon: ShoppingCart, change: "+0%" },
+    { title: "Active Alerts", value: "0", icon: AlertTriangle, change: "+0%" },
+  ]);
 
-  let userName = ""; // Get the name property
-  if (userData) {
-    try {
-      const user = JSON.parse(userData); // Parse JSON string to object
-      userName = user.name;
-      console.log("User name:", userName);
-    } catch (error) {
-      console.error("Error parsing user data:", error);
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        setUserName(user.name);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
     }
-  } else {
-    console.log("No user data found in localStorage");
-  }
+
+    // Fetch Dashboard Stats
+    fetch(
+      "http://localhost/agrizen/backend/adminController/adminController.php"
+    ) // Replace with your actual API endpoint
+      .then(async (res) => {
+        const text = await res.text();
+        console.log("Raw response:", text);
+        return JSON.parse(text);
+      })
+      .then((data) => {
+        if (data.status === 200) {
+          setStats([
+            {
+              title: "Total Users",
+              value: data.data.totalUsers,
+              icon: Users,
+              change: "+12%",
+            },
+            {
+              title: "Products Listed",
+              value: data.data.totalProducts,
+              icon: Package,
+              change: "+8%",
+            },
+            {
+              title: "Total Orders",
+              value: data.data.totalOrders,
+              icon: ShoppingCart,
+              change: "+15%",
+            },
+            {
+              title: "Active Alerts",
+              value: data.data.activeAlerts,
+              icon: AlertTriangle,
+              change: "+3%",
+            },
+          ]);
+        } else {
+          console.error("Error fetching stats:", data.message);
+        }
+      })
+      .catch((error) => console.error("Error fetching stats:", error));
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
       <DashboardSidebar type="admin" />
       <div className="flex-1 ml-[280px] p-6">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">
               Admin Dashboard
@@ -43,7 +86,6 @@ const AdminDashboard = () => {
             <p className="text-gray-600">Welcome back, {userName}</p>
           </div>
 
-          {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat, index) => (
               <motion.div
@@ -57,13 +99,7 @@ const AdminDashboard = () => {
                   <div className="p-2 bg-green-100 rounded-lg">
                     <stat.icon className="h-6 w-6 text-green-600" />
                   </div>
-                  <span
-                    className={`text-sm font-semibold ${
-                      stat.change.includes("+")
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
+                  <span className="text-sm font-semibold text-green-600">
                     {stat.change}
                   </span>
                 </div>
@@ -75,9 +111,7 @@ const AdminDashboard = () => {
             ))}
           </div>
 
-          {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Recent Activity */}
             <div className="bg-white p-6 rounded-lg shadow-md lg:col-span-3">
               <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
               <div className="space-y-4">

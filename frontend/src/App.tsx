@@ -14,6 +14,7 @@ import LoginPage from './pages/login';
 import UserManagement from './pages/admin/UserManagement';
 import CategoryManagement from './pages/admin/categories';
 import ProductManagement from './pages/admin/products';
+import ProfileManagement from './pages/admin/profile';
 
 
 
@@ -38,6 +39,7 @@ function Layout() {
           <Route path="/admin/UserManagement" element={<UserManagement />} />
           <Route path="/admin/categories" element={<CategoryManagement />} />
           <Route path="/admin/products" element={<ProductManagement />} />
+          <Route path="/admin/profile" element={<ProfileManagement />} />
 
         </Routes>
       </main>

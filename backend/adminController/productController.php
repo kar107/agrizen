@@ -23,10 +23,7 @@ switch ($method) {
                 exit;
             }
             
-            // print_r ($input);
-            // print_r($inputData);
-            // exit(); // Debugging: Check received data in error log
-            $user_id = isset($input['user_id']) ? intval($input['user_id']) : null;
+            $user_id = isset($inputData['user_id']) ? intval($inputData['user_id']) : null;
             
             if (!isset($inputData['name']) || empty($inputData['name'])) {
                   echo json_encode(["status" => 400, "message" => "Product name is required"]);
@@ -35,12 +32,11 @@ switch ($method) {
 
             $insertData = [
                   'name' => trim($inputData['name']),
-                  'description' => isset($input['description']) ? trim($input['description']) : '',
-                  'category_id' => isset($input['category_id']) ? intval($input['category_id']) : null,
-                  'price' => isset($input['price']) ? floatval($input['price']) : 0,
-                  'stock_quantity' => isset($input['stock_quantity']) ? intval($input['stock_quantity']) : 0,
-                  'unit' => isset($input['unit']) ? trim($input['unit']) : '',
-                  // 'supplier_id' => isset($input['supplier_id']) ? intval($input['supplier_id']) : null,
+                  'description' => isset($inputData['description']) ? trim($inputData['description']) : '',
+                  'category_id' => isset($inputData['category_id']) ? intval($inputData['category_id']) : null,
+                  'price' => isset($inputData['price']) ? floatval($inputData['price']) : 0,
+                  'stock_quantity' => isset($inputData['stock_quantity']) ? intval($inputData['stock_quantity']) : 0,
+                  'unit' => isset($inputData['unit']) ? trim($inputData['unit']) : '',
                   'user_id' => $user_id,  // Assign logged-in user
                   'created_at' => date('Y-m-d H:i:s')
             ];
