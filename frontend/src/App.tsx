@@ -13,6 +13,7 @@ import Register from './pages/Register';
 import LoginPage from './pages/login';
 import UserManagement from './pages/admin/UserManagement';
 import CategoryManagement from './pages/admin/categories';
+import ProductManagement from './pages/admin/products';
 
 
 
@@ -36,6 +37,7 @@ function Layout() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin/UserManagement" element={<UserManagement />} />
           <Route path="/admin/categories" element={<CategoryManagement />} />
+          <Route path="/admin/products" element={<ProductManagement />} />
 
         </Routes>
       </main>

@@ -40,7 +40,7 @@ const DashboardSidebar: React.FC<SidebarProps> = ({ type, onUserManagementClick 
         { icon: Home, label: 'Dashboard', path: '/admin/dashboard' },
         { icon: UserIcon, label: 'Profile', path: '/admin/profile' },
         { icon: Users, label: 'User Management', path: '/admin/UserManagement', onClick: onUserManagementClick },
-        { icon: Folder, label: 'Categories', path: '/admin/categories',onClick: onUserManagementClick },
+        { icon: Folder, label: 'Categories', path: '/admin/categories' },
         { icon: Package, label: 'Products', path: '/admin/products' },
         { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
         { icon: Bell, label: 'Notifications', path: '/admin/notifications' },
