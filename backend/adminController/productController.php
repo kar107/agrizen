@@ -40,7 +40,7 @@ switch ($method) {
                   'price' => isset($input['price']) ? floatval($input['price']) : 0,
                   'stock_quantity' => isset($input['stock_quantity']) ? intval($input['stock_quantity']) : 0,
                   'unit' => isset($input['unit']) ? trim($input['unit']) : '',
-                  'supplier_id' => isset($input['supplier_id']) ? intval($input['supplier_id']) : null,
+                  // 'supplier_id' => isset($input['supplier_id']) ? intval($input['supplier_id']) : null,
                   'user_id' => $user_id,  // Assign logged-in user
                   'created_at' => date('Y-m-d H:i:s')
             ];
