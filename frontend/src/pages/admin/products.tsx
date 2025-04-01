@@ -14,6 +14,7 @@ interface Product {
   status: string;
   created_at: string;
   user_id: number;
+  image: string; // Added image field
 }
 
 const ProductManagement: React.FC = () => {
@@ -31,6 +32,8 @@ const ProductManagement: React.FC = () => {
     unit: string;
     status: string;
     user_id: number | null;
+    image: File | null; // Added image field
+    existingImage: string; // To track existing image when editing
   }>({
     id: null,
     name: "",
@@ -41,6 +44,8 @@ const ProductManagement: React.FC = () => {
     unit: "",
     status: "active",
     user_id: null,
+    image: null,
+    existingImage: "",
   });
 
   const [editing, setEditing] = useState(false);
@@ -90,6 +95,12 @@ const ProductManagement: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData({ ...formData, image: e.target.files[0] });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -97,13 +108,29 @@ const ProductManagement: React.FC = () => {
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
     let userId = userData?.userid || null;
 
-    const updatedFormData = { ...formData, user_id: userId };
+    const formDataToSend = new FormData();
+    formDataToSend.append("id", formData.id?.toString() || "");
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("description", formData.description);
+    formDataToSend.append("category_id", formData.category_id.toString());
+    formDataToSend.append("price", formData.price.toString());
+    formDataToSend.append("stock_quantity", formData.stock_quantity.toString());
+    formDataToSend.append("unit", formData.unit);
+    formDataToSend.append("status", formData.status);
+    formDataToSend.append("user_id", userId?.toString() || "");
+    
+    if (formData.image) {
+      formDataToSend.append("image", formData.image);
+    }
+    if (editing && formData.existingImage) {
+      formDataToSend.append("existingImage", formData.existingImage);
+    }
 
     try {
       let response;
       if (editing) {
-        response = await axios.put(API_URL, JSON.stringify(updatedFormData), {
-          headers: { "Content-Type": "application/json" },
+        response = await axios.put(API_URL, formDataToSend, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
         await Swal.fire({
           icon: 'success',
@@ -111,8 +138,8 @@ const ProductManagement: React.FC = () => {
           text: 'Product updated successfully.',
         });
       } else {
-        response = await axios.post(API_URL, JSON.stringify(updatedFormData), {
-          headers: { "Content-Type": "application/json" },
+        response = await axios.post(API_URL, formDataToSend, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
         await Swal.fire({
           icon: 'success',
@@ -134,6 +161,8 @@ const ProductManagement: React.FC = () => {
           unit: "",
           status: "active",
           user_id: userId,
+          image: null,
+          existingImage: "",
         });
       } else {
         await Swal.fire({
@@ -153,7 +182,14 @@ const ProductManagement: React.FC = () => {
   };
 
   const handleEdit = (product: Product) => {
-    setFormData({ ...product });
+    setFormData({ 
+      ...product, 
+      category_id: product.category_id,
+      price: product.price,
+      stock_quantity: product.stock_quantity,
+      image: null,
+      existingImage: product.image 
+    });
     setEditing(true);
   };
 
@@ -238,6 +274,44 @@ const ProductManagement: React.FC = () => {
               className="border p-2 rounded"
               required
             />
+            <input
+              type="number"
+              name="stock_quantity"
+              placeholder="Stock Quantity"
+              value={formData.stock_quantity}
+              onChange={handleInputChange}
+              className="border p-2 rounded"
+              required
+            />
+            <input
+              type="text"
+              name="unit"
+              placeholder="Unit (kg, g, etc.)"
+              value={formData.unit}
+              onChange={handleInputChange}
+              className="border p-2 rounded"
+              required
+            />
+            <div className="col-span-2">
+              <label className="block mb-2">Product Image</label>
+              <input
+                type="file"
+                name="image"
+                onChange={handleImageChange}
+                className="border p-2 rounded"
+                accept="image/*"
+              />
+              {editing && formData.existingImage && (
+                <div className="mt-2">
+                  <p className="text-sm text-gray-600">Current Image:</p>
+                  <img 
+                    src={`http://localhost/agrizen/backend/uploads/${formData.existingImage}`} 
+                    alt="Product" 
+                    className="h-20 w-20 object-cover mt-1"
+                  />
+                </div>
+              )}
+            </div>
           </div>
           <button
             type="submit"
@@ -254,8 +328,10 @@ const ProductManagement: React.FC = () => {
             <thead>
               <tr className="bg-gray-200">
                 <th className="border p-2">ID</th>
+                <th className="border p-2">Image</th>
                 <th className="border p-2">Name</th>
                 <th className="border p-2">Price</th>
+                <th className="border p-2">Stock</th>
                 <th className="border p-2">Actions</th>
               </tr>
             </thead>
@@ -263,8 +339,18 @@ const ProductManagement: React.FC = () => {
               {products.map((product) => (
                 <tr key={product.id} className="border">
                   <td className="border p-2">{product.id}</td>
+                  <td className="border p-2">
+                    {product.image && (
+                      <img 
+                        src={`http://localhost/agrizen/backend/uploads/${product.image}`} 
+                        alt={product.name} 
+                        className="h-12 w-12 object-cover"
+                      />
+                    )}
+                  </td>
                   <td className="border p-2">{product.name}</td>
                   <td className="border p-2">${product.price}</td>
+                  <td className="border p-2">{product.stock_quantity} {product.unit}</td>
                   <td className="border p-2">
                     <button
                       onClick={() => handleEdit(product)}
