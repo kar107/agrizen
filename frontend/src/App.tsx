@@ -18,6 +18,7 @@ import ProfileManagement from './pages/admin/profile';
 import SupplierCategoryManagement from './pages/supplier/categories';
 import SupplierProductManagement from './pages/supplier/products';
 import SupplierProfileManagement from './pages/supplier/profile';
+import ProductSingle from './pages/productsingle';
 
 
 
@@ -46,6 +47,7 @@ function Layout() {
           <Route path="/supplier/categories" element={<SupplierCategoryManagement />} />
           <Route path="/supplier/products" element={<SupplierProductManagement />} />
           <Route path="/supplier/profile" element={<SupplierProfileManagement />} />
+          <Route path="/productsingle/:id" element={<ProductSingle />} />
           
 
         </Routes>
