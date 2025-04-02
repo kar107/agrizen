@@ -1,34 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Search, Filter, Star, ShoppingCart } from 'lucide-react';
+import { motion } from "framer-motion";
+import { Filter, Search, ShoppingCart, Star } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const categories = ["All", "Seeds", "Fertilizers", "Equipment", "Pesticides"];
 
 const Marketplace = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [products, setProducts] = useState([]); // Initialize products state
-
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(["All"]);
+  useEffect(() => {
+    fetch(
+      "http://localhost/agrizen/backend/adminController/categoryController.php"
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === 200) {
+          setCategories(["All", ...data.data.map((category) => category.name)]);
+        } else {
+          console.error("Failed to fetch categories:", data.message);
+        }
+      })
+      .catch((error) => console.error("Error fetching categories:", error));
+  }, []);
   // Fetch dynamic products
   useEffect(() => {
-    fetch('http://localhost/agrizen/backend/adminController/marketplaceController.php')
+    fetch(
+      "http://localhost/agrizen/backend/adminController/marketplaceController.php"
+    )
       .then((response) => response.json())
       .then((data) => {
         // Assuming data contains an array of products
         if (data.status === 200) {
           setProducts(data.data); // Set the fetched products
         } else {
-          console.error('Failed to fetch products:', data.message);
+          console.error("Failed to fetch products:", data.message);
         }
       })
-      .catch((error) => console.error('Error fetching products:', error));
+      .catch((error) => console.error("Error fetching products:", error));
   }, []); // Run only once on component mount
 
-  const filteredProducts = products.filter(product => {
-    const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredProducts = products.filter((product) => {
+    const matchesCategory =
+      selectedCategory === "All" || product.category === selectedCategory;
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
-  }); 
+  });
 
   return (
     <div>
@@ -84,8 +103,10 @@ const Marketplace = () => {
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
                 ))}
               </select>
             </div>
@@ -97,7 +118,7 @@ const Marketplace = () => {
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map(product => (
+            {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
@@ -130,7 +151,9 @@ const ProductCard = ({ product }) => {
         </div>
         <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
         <div className="flex items-center justify-between">
-          <span className="text-2xl font-bold text-green-600">${product.price}</span>
+          <span className="text-2xl font-bold text-green-600">
+            ${product.price}
+          </span>
           <button className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-green-700 transition">
             <ShoppingCart className="h-5 w-5" />
             <span>Add to Cart</span>

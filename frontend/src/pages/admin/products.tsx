@@ -14,7 +14,7 @@ interface Product {
   status: string;
   created_at: string;
   user_id: number;
-  image: string; // Added image field
+  image: string; // Added image field 
 }
 
 const ProductManagement: React.FC = () => {

@@ -22,29 +22,30 @@ if (!file_exists($uploadDirectory)) {
     mkdir($uploadDirectory, 0777, true);
 }
 
-function handleFileUpload($existingImage = null) {
+function handleFileUpload($existingImage = null)
+{
     global $uploadDirectory;
-    
+
     // Check if file was uploaded
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $file = $_FILES['image'];
-        
+
         // Validate file type
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
         if (!in_array($file['type'], $allowedTypes)) {
             return ['error' => 'Only JPG, PNG, and GIF images are allowed'];
         }
-        
+
         // Validate file size (max 2MB)
         if ($file['size'] > 2097152) {
             return ['error' => 'Image size must be less than 2MB'];
         }
-        
+
         // Generate unique filename
         $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
         $filename = uniqid() . '.' . $extension;
         $destination = $uploadDirectory . $filename;
-        
+
         // Move uploaded file
         if (move_uploaded_file($file['tmp_name'], $destination)) {
             // Delete old image if it exists
@@ -56,12 +57,12 @@ function handleFileUpload($existingImage = null) {
             return ['error' => 'Failed to upload image'];
         }
     }
-    
+
     // If no new file uploaded but existing image exists, keep the existing one
     if ($existingImage) {
         return ['filename' => $existingImage];
     }
-    
+
     return ['filename' => null];
 }
 
@@ -71,7 +72,7 @@ switch ($method) {
         if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false) {
             $inputData = $_POST;
             $fileResult = handleFileUpload();
-            
+
             if (isset($fileResult['error'])) {
                 echo json_encode(["status" => 400, "message" => $fileResult['error']]);
                 exit;
@@ -83,9 +84,9 @@ switch ($method) {
                 exit;
             }
         }
-        
+
         $user_id = isset($inputData['user_id']) ? intval($inputData['user_id']) : null;
-        
+
         if (!isset($inputData['name']) || empty($inputData['name'])) {
             echo json_encode(["status" => 400, "message" => "Product name is required"]);
             exit;
@@ -102,20 +103,20 @@ switch ($method) {
             'user_id' => $user_id,
             'created_at' => date('Y-m-d H:i:s')
         ];
-        
+
         // Add image filename if available
         if (isset($fileResult['filename']) && $fileResult['filename']) {
             $insertData['image'] = $fileResult['filename'];
         }
-        
+
         $result = $d->insert('products', $insertData);
 
         echo json_encode($result ? [
-            "status" => 200, 
+            "status" => 200,
             "message" => "Product added successfully",
             "data" => $insertData
         ] : [
-            "status" => 500, 
+            "status" => 500,
             "message" => "Failed to add product"
         ]);
         exit();
@@ -129,10 +130,10 @@ switch ($method) {
         }
 
         echo json_encode([
-            "status" => 200, 
-            "message" => "Products retrieved successfully", 
+            "status" => 200,
+            "message" => "Products retrieved successfully",
             "data" => $products
-        ]); 
+        ]);
         exit();
 
     case 'PUT': // Update product
@@ -140,7 +141,7 @@ switch ($method) {
         if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false) {
             $inputData = $_POST;
             $id = isset($inputData['id']) ? intval($inputData['id']) : null;
-            
+
             // Get existing image filename
             $existingImage = null;
             if ($id) {
@@ -150,9 +151,9 @@ switch ($method) {
                     $existingImage = $product['image'] ?? null;
                 }
             }
-            
+
             $fileResult = handleFileUpload($existingImage);
-            
+
             if (isset($fileResult['error'])) {
                 echo json_encode(["status" => 400, "message" => $fileResult['error']]);
                 exit;
@@ -164,7 +165,7 @@ switch ($method) {
                 exit;
             }
         }
-        
+
         if (isset($inputData['id'])) {
             $id = intval($inputData['id']);
             $updateData = [];
@@ -174,7 +175,7 @@ switch ($method) {
                     $updateData[$field] = $inputData[$field];
                 }
             }
-            
+
             // Add image filename if available
             if (isset($fileResult['filename'])) {
                 $updateData['image'] = $fileResult['filename'];
@@ -183,10 +184,10 @@ switch ($method) {
             if (!empty($updateData)) {
                 $updateStatus = $d->update('products', $updateData, "id = $id");
                 echo json_encode($updateStatus ? [
-                    "status" => 200, 
+                    "status" => 200,
                     "message" => "Product updated successfully"
                 ] : [
-                    "status" => 500, 
+                    "status" => 500,
                     "message" => "Product update failed"
                 ]);
             } else {
@@ -200,7 +201,7 @@ switch ($method) {
     case 'DELETE': // Delete product
         if (isset($_GET['id'])) {
             $id = intval($_GET['id']);
-            
+
             // First get the product to delete its image
             $product = $d->select('products', "id = $id");
             if ($product && mysqli_num_rows($product) > 0) {
@@ -209,14 +210,14 @@ switch ($method) {
                     unlink($uploadDirectory . $productData['image']);
                 }
             }
-            
+
             $deleteStatus = $d->delete('products', "id = $id");
 
             echo json_encode($deleteStatus ? [
-                "status" => 200, 
+                "status" => 200,
                 "message" => "Product deleted successfully"
             ] : [
-                "status" => 500, 
+                "status" => 500,
                 "message" => "Product deletion failed"
             ]);
         } else {
@@ -224,4 +225,3 @@ switch ($method) {
         }
         exit();
 }
-?>
