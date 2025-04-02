@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Lock, Mail, Sprout } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link,useNavigate } from "react-router-dom";
 
 const Register = () => {
@@ -13,7 +13,22 @@ const Register = () => {
     email: "",
     password: "",
   });
+useEffect(() => {
+    const userData = localStorage.getItem("user");
 
+    if (userData) {
+      const user = JSON.parse(userData);
+      console.log("User detected in localStorage:", user); // Debugging line
+
+      if (user.role === "Farmer") {
+        navigate("/");
+      } else if (user.role === "Admin") {
+        navigate("/admin/dashboard");
+      } else if (user.role === "Supplier") {
+        navigate("/supplier/dashboard");
+      }
+    }
+  }, [navigate]);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,

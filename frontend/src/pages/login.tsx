@@ -5,17 +5,23 @@ import { Link, useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  let userData = localStorage.getItem("user");
+ 
   useEffect(() => {
+    const userData = localStorage.getItem("user");
+
     if (userData) {
-      userData = JSON.parse(userData);
-      if (userData.role == "Admin") {
-        navigate("/admin/Dashboard");
-      } else {
-        navigate("supplier/Dashboard");
+      const user = JSON.parse(userData);
+      console.log("User detected in localStorage:", user); // Debugging line
+
+      if (user.role === "Farmer") {
+        navigate("/");
+      } else if (user.role === "Admin") {
+        navigate("/admin/dashboard");
+      } else if (user.role === "Supplier") {
+        navigate("/supplier/dashboard");
       }
     }
-  }, [userData]);
+  }, [navigate]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -67,7 +73,7 @@ const LoginPage = () => {
           alert(result.message);
         } else {
           localStorage.setItem("user", JSON.stringify(result.data)); // Store user data
-          navigate("/farmerIndex"); // Redirect to admin dashboard
+          navigate("/"); // Redirect to admin dashboard
           alert(result.message);
         }
       } else {

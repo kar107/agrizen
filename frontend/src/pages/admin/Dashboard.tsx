@@ -7,6 +7,7 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardSidebar from "../../components/DashboardSidebar";
 
 const AdminDashboard = () => {
@@ -16,6 +17,24 @@ const AdminDashboard = () => {
     { title: "Total Orders", value: "0", icon: ShoppingCart, change: "+0%" },
     { title: "Active Alerts", value: "0", icon: AlertTriangle, change: "+0%" },
   ]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+
+    if (!userData) {
+      console.log("No user found, redirecting to login");
+      navigate("/login");
+    } else {
+      const user = JSON.parse(userData);
+      console.log("Admin check:", user);
+
+      if (user.role !== "Admin") {
+        console.log("Unauthorized user, redirecting");
+        navigate("/");
+      }
+    }
+  }, [navigate]);
 
   const [userName, setUserName] = useState("");
 

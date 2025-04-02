@@ -46,6 +46,7 @@ function Layout() {
           <Route path="/supplier/categories" element={<SupplierCategoryManagement />} />
           <Route path="/supplier/products" element={<SupplierProductManagement />} />
           <Route path="/supplier/profile" element={<SupplierProfileManagement />} />
+          
 
         </Routes>
       </main>

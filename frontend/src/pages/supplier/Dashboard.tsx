@@ -10,7 +10,10 @@ import {
   AlertTriangle,
   DollarSign
 } from 'lucide-react';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardSidebar from '../../components/DashboardSidebar';
+
 
 const SupplierDashboard = () => {
   const stats = [
@@ -19,6 +22,20 @@ const SupplierDashboard = () => {
     { title: 'Monthly Revenue', value: '$8,245', icon: DollarSign, change: '+15%' },
     { title: 'Pending Queries', value: '3', icon: MessageSquare, change: '-2%' }
   ];
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+
+    if (!userData) {
+      navigate("/login");
+    } else {
+      const user = JSON.parse(userData);
+      if (user.role !== "Supplier") {
+        navigate("/");
+      }
+    }
+  }, [navigate]);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
