@@ -136,7 +136,7 @@ const ProductCard = ({ product }) => {
     >
       <div className="h-48 relative">
         <img
-          src={product.image}
+          src={`http://localhost/agrizen/backend/uploads/products/${product.image}`} 
           alt={product.name}
           className="w-full h-full object-cover"
         />

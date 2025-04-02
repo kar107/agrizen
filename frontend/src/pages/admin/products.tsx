@@ -305,7 +305,7 @@ const ProductManagement: React.FC = () => {
                 <div className="mt-2">
                   <p className="text-sm text-gray-600">Current Image:</p>
                   <img 
-                    src={`http://localhost/agrizen/backend/uploads/${formData.existingImage}`} 
+                    src={`http://localhost/agrizen/backend/uploads/products/${formData.existingImage}`} 
                     alt="Product" 
                     className="h-20 w-20 object-cover mt-1"
                   />
@@ -342,7 +342,7 @@ const ProductManagement: React.FC = () => {
                   <td className="border p-2">
                     {product.image && (
                       <img 
-                        src={`http://localhost/agrizen/backend/uploads/${product.image}`} 
+                        src={`http://localhost/agrizen/backend/uploads/products/${product.image}`} 
                         alt={product.name} 
                         className="h-12 w-12 object-cover"
                       />
