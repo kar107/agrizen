@@ -2,7 +2,7 @@ import { Menu, Sprout, X, User, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({flag,setflag}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -13,12 +13,13 @@ const Navbar = () => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-  }, []);
+  }, [flag]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
     navigate("/login");
+    setflag(!flag);
   };
 
   return (

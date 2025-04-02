@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -24,10 +24,10 @@ import SupplierProfileManagement from './pages/supplier/profile';
 function Layout() {
   const location = useLocation();
   const hideNavbarFooter = location.pathname.startsWith('/admin') || location.pathname.startsWith('/supplier');
-
+  const [flag, setflag] = useState(true);
   return (
     <div className="min-h-screen flex flex-col">
-      {!hideNavbarFooter && <Navbar />}
+      {!hideNavbarFooter && <Navbar flag={flag}  setflag={setflag}/>}
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -38,7 +38,7 @@ function Layout() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage setflag={setflag} flag={flag} />} />
           <Route path="/admin/UserManagement" element={<UserManagement />} />
           <Route path="/admin/categories" element={<CategoryManagement />} />
           <Route path="/admin/products" element={<ProductManagement />} />

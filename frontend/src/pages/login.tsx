@@ -3,7 +3,7 @@ import { Eye, EyeOff, Lock, Mail, Sprout } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const LoginPage = () => {
+const LoginPage = ({setflag,flag}) => {
   const navigate = useNavigate();
  
   useEffect(() => {
@@ -63,6 +63,7 @@ const LoginPage = () => {
       setLoading(false);
 
       if (result.status === "200") {
+        setflag(!flag);
         if (result.data.role == "Admin") {
           localStorage.setItem("user", JSON.stringify(result.data)); // Store user data
           navigate("/admin/dashboard"); // Redirect to admin dashboard
