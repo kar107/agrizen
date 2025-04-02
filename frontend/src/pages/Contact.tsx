@@ -9,8 +9,7 @@ const Contact = () => {
       <section className="relative h-[300px]">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1560693225-b8c0c4c5a82b?auto=format&fit=crop&q=80"
-            alt="Contact us"
+            src="https://senzagro.com/images/Box-Product/FMS-MENU-Products-min_1.webp"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>

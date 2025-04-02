@@ -9,7 +9,7 @@ const Services = () => {
       <section className="relative h-[400px]">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1592982537447-6f2a6a0c8b1b?auto=format&fit=crop&q=80"
+            src="https://agrierp.com/blog/wp-content/uploads/2023/06/5-Ways-Farmers-Financial-Solutions-Can-Help-You-Grow-Your-Farm-copy-scaled.jpg"
             alt="Modern farming"
             className="w-full h-full object-cover"
           />
