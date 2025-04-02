@@ -1,69 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, Star, ShoppingCart } from 'lucide-react';
-
-const products = [
-  {
-    id: 1,
-    name: "Organic Fertilizer",
-    category: "Fertilizers",
-    price: 29.99,
-    rating: 4.5,
-    image: "https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?auto=format&fit=crop&q=80"
-  },
-  {
-    id: 2,
-    name: "Smart Irrigation System",
-    category: "Equipment",
-    price: 199.99,
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1563906267088-b029e7101114?auto=format&fit=crop&q=80"
-  },
-  {
-    id: 3,
-    name: "Premium Seeds Pack",
-    category: "Seeds",
-    price: 49.99,
-    rating: 4.6,
-    image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&q=80"
-  },
-  {
-    id: 4,
-    name: "Pest Control Solution",
-    category: "Pesticides",
-    price: 34.99,
-    rating: 4.3,
-    image: "https://images.unsplash.com/photo-1558583055-d7ac00b1adca?auto=format&fit=crop&q=80"
-  },
-  {
-    id: 5,
-    name: "Farming Tools Set",
-    category: "Equipment",
-    price: 149.99,
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1598512199776-e0aa7b421eae?auto=format&fit=crop&q=80"
-  },
-  {
-    id: 6,
-    name: "Soil Testing Kit",
-    category: "Equipment",
-    price: 79.99,
-    rating: 4.4,
-    image: "https://images.unsplash.com/photo-1563906267088-b029e7101114?auto=format&fit=crop&q=80"
-  }
-];
 
 const categories = ["All", "Seeds", "Fertilizers", "Equipment", "Pesticides"];
 
 const Marketplace = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState([]); // Initialize products state
+
+  // Fetch dynamic products
+  useEffect(() => {
+    fetch('http://localhost/agrizen/backend/adminController/marketplaceController.php')
+      .then((response) => response.json())
+      .then((data) => {
+        // Assuming data contains an array of products
+        if (data.status === 200) {
+          setProducts(data.data); // Set the fetched products
+        } else {
+          console.error('Failed to fetch products:', data.message);
+        }
+      })
+      .catch((error) => console.error('Error fetching products:', error));
+  }, []); // Run only once on component mount
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
-  });
+  }); 
 
   return (
     <div>

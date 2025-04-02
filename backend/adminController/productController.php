@@ -132,14 +132,14 @@ switch ($method) {
             "status" => 200, 
             "message" => "Products retrieved successfully", 
             "data" => $products
-        ]);
+        ]); 
         exit();
 
     case 'PUT': // Update product
         // Check if this is a multipart form (file upload)
         if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false) {
-            $input = $_POST;
-            $id = isset($input['id']) ? intval($input['id']) : null;
+            $inputData = $_POST;
+            $id = isset($inputData['id']) ? intval($inputData['id']) : null;
             
             // Get existing image filename
             $existingImage = null;
@@ -158,20 +158,20 @@ switch ($method) {
                 exit;
             }
         } else {
-            $input = json_decode(file_get_contents("php://input"), true);
-            if (!$input) {
+            $inputData = json_decode(file_get_contents("php://input"), true);
+            if (!$inputData) {
                 echo json_encode(["status" => 400, "message" => "Invalid JSON format"]);
                 exit;
             }
         }
         
-        if (isset($input['id'])) {
-            $id = intval($input['id']);
+        if (isset($inputData['id'])) {
+            $id = intval($inputData['id']);
             $updateData = [];
 
             foreach (["name", "description", "category_id", "price", "stock_quantity", "unit", "status"] as $field) {
-                if (isset($input[$field])) {
-                    $updateData[$field] = $input[$field];
+                if (isset($inputData[$field])) {
+                    $updateData[$field] = $inputData[$field];
                 }
             }
             
