@@ -1,8 +1,8 @@
-import { Menu, Sprout, X, User, LogOut } from "lucide-react";
+import { Menu, Sprout, X, User, LogOut, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = ({flag,setflag}) => {
+const Navbar = ({ flag, setflag }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -40,28 +40,20 @@ const Navbar = ({flag,setflag}) => {
               <Link to="/" className="hover:bg-green-600 px-3 py-2 rounded-md">
                 Home
               </Link>
-              <Link
-                to="/about"
-                className="hover:bg-green-600 px-3 py-2 rounded-md"
-              >
+              <Link to="/about" className="hover:bg-green-600 px-3 py-2 rounded-md">
                 About
               </Link>
-              <Link
-                to="/services"
-                className="hover:bg-green-600 px-3 py-2 rounded-md"
-              >
+              <Link to="/services" className="hover:bg-green-600 px-3 py-2 rounded-md">
                 Services
               </Link>
-              <Link
-                to="/marketplace"
-                className="hover:bg-green-600 px-3 py-2 rounded-md"
-              >
+              <Link to="/marketplace" className="hover:bg-green-600 px-3 py-2 rounded-md">
                 Marketplace
               </Link>
-              <Link
-                to="/contact"
-                className="hover:bg-green-600 px-3 py-2 rounded-md"
-              >
+              <Link to="/cart" className="hover:bg-green-600 px-3 py-2 rounded-md flex items-center space-x-2">
+                <ShoppingCart className="h-5 w-5" />
+                <span>Cart</span>
+              </Link>
+              <Link to="/contact" className="hover:bg-green-600 px-3 py-2 rounded-md">
                 Contact
               </Link>
 
@@ -70,7 +62,7 @@ const Navbar = ({flag,setflag}) => {
                 <div className="relative">
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className=" px-4 py-2 rounded-md font-medium  hover:bg-green-600 flex items-center space-x-2"
+                    className="px-4 py-2 rounded-md font-medium hover:bg-green-600 flex items-center space-x-2"
                   >
                     <User className="h-5 w-5" />
                     <span>{user.name}</span>
@@ -79,10 +71,7 @@ const Navbar = ({flag,setflag}) => {
                   {/* Dropdown Menu */}
                   {dropdownOpen && (
                     <div className="absolute right-0 mt-2 w-40 bg-white text-green-700 rounded-md shadow-lg z-50">
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 hover:bg-green-100"
-                      >
+                      <Link to="/profile" className="block px-4 py-2 hover:bg-green-100">
                         Profile
                       </Link>
                       <button
@@ -96,10 +85,7 @@ const Navbar = ({flag,setflag}) => {
                   )}
                 </div>
               ) : (
-                <Link
-                  to="/register"
-                  className="bg-white text-green-700 px-4 py-2 rounded-md font-medium hover:bg-green-100"
-                >
+                <Link to="/register" className="bg-white text-green-700 px-4 py-2 rounded-md font-medium hover:bg-green-100">
                   Sign Up
                 </Link>
               )}
@@ -134,6 +120,10 @@ const Navbar = ({flag,setflag}) => {
             <Link to="/marketplace" className="block hover:bg-green-600 px-3 py-2 rounded-md">
               Marketplace
             </Link>
+            <Link to="/cart" className="block hover:bg-green-600 px-3 py-2 rounded-md flex items-center space-x-2">
+              <ShoppingCart className="h-5 w-5" />
+              <span>Cart</span>
+            </Link>
             <Link to="/contact" className="block hover:bg-green-600 px-3 py-2 rounded-md">
               Contact
             </Link>
@@ -164,3 +154,4 @@ const Navbar = ({flag,setflag}) => {
 };
 
 export default Navbar;
+  

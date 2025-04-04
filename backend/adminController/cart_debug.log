@@ -1,0 +1,9 @@
+{"user_id":"23","product_id":"1","name":"Hybrid Maize Seeds","image":"67ee817ea21a0.png","description":"High-yield maize seeds suitable for diverse climates, resistant to drought and pests, ensuring optimal germination and maximum productivity.","quantity":1,"price":"75.00"}
+{"user_id":"23","product_id":"1","name":"Hybrid Maize Seeds","image":"67ee817ea21a0.png","description":"High-yield maize seeds suitable for diverse climates, resistant to drought and pests, ensuring optimal germination and maximum productivity.","quantity":1,"price":"75.00"}
+{"user_id":"23","product_id":"1","quantity":1,"price":"75.00"}
+Received JSON: {"user_id":"23","product_id":"1","name":"Hybrid Maize Seeds","image":"67ee817ea21a0.png","description":"High-yield maize seeds suitable for diverse climates, resistant to drought and pests, ensuring optimal germination and maximum productivity.","quantity":1,"price":"75.00"}
+{"user_id":"23","product_id":"1","name":"Hybrid Maize Seeds","image":"67ee817ea21a0.png","description":"High-yield maize seeds suitable for diverse climates, resistant to drought and pests, ensuring optimal germination and maximum productivity.","quantity":1,"price":"75.00"}
+
+Received JSON: {"user_id":"23","product_id":"1","quantity":1,"price":"75.00"}
+Received JSON: {"user_id":"23","product_id":"3","quantity":1,"price":"40.00"}
+Received JSON: {"user_id":"23","product_id":"2","quantity":1,"price":"30.00"}
