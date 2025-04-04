@@ -64,38 +64,60 @@ switch ($method) {
         }
         break;
 
-    case 'POST':
-        $rawData = file_get_contents("php://input");
-        $data = json_decode($rawData, true);
-
-        if (!$data) {
-            echo json_encode(["status" => 400, "message" => "Invalid JSON"]);
-            exit();
-        }
-
-        $requiredFields = ['user_id', 'product_id', 'quantity', 'price'];
-        foreach ($requiredFields as $field) {
-            if (!isset($data[$field])) {
-                echo json_encode(["status" => 400, "message" => "Missing: $field"]);
+        case 'POST':
+            $rawData = file_get_contents("php://input");
+            $data = json_decode($rawData, true);
+    
+            if (!$data) {
+                echo json_encode(["status" => 400, "message" => "Invalid JSON"]);
                 exit();
             }
-        }
-
-        $user_id = intval($data['user_id']);
-        $product_id = intval($data['product_id']);
-        $quantity = intval($data['quantity']);
-        $price = floatval($data['price']);
-        $total = $price * $quantity;
-
-        $stmt = $pdo->prepare("INSERT INTO cart (user_id, product_id, quantity, price, total) 
-                               VALUES (?, ?, ?, ?, ?)");
-        $success = $stmt->execute([$user_id, $product_id, $quantity, $price, $total]);
-
-        echo json_encode([
-            "status" => $success ? 200 : 500,
-            "message" => $success ? "Added to cart" : "Insert failed"
-        ]);
-        break;
+    
+            $requiredFields = ['user_id', 'product_id', 'quantity', 'price'];
+            foreach ($requiredFields as $field) {
+                if (!isset($data[$field])) {
+                    echo json_encode(["status" => 400, "message" => "Missing: $field"]);
+                    exit();
+                }
+            }
+    
+            $user_id = intval($data['user_id']);
+            $product_id = intval($data['product_id']);
+            $quantity = intval($data['quantity']);
+            $price = floatval($data['price']);
+    
+            // Check if product already exists in cart
+            $checkStmt = $pdo->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
+            $checkStmt->execute([$user_id, $product_id]);
+            $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
+    
+            if ($existing) {
+                // Product exists — update quantity and total
+                $newQuantity = $existing['quantity'] + $quantity;
+                $newTotal = $price * $newQuantity;
+    
+                $updateStmt = $pdo->prepare("UPDATE cart SET quantity = ?, price = ?, total = ? WHERE user_id = ? AND product_id = ?");
+                $updated = $updateStmt->execute([$newQuantity, $price, $newTotal, $user_id, $product_id]);
+    
+                echo json_encode([
+                    "status" => $updated ? 200 : 500,
+                    "message" => $updated ? "Cart updated" : "Update failed"
+                ]);
+            } else {
+                // Product not in cart — insert new row
+                $total = $price * $quantity;
+    
+                $insertStmt = $pdo->prepare("INSERT INTO cart (user_id, product_id, quantity, price, total) 
+                                             VALUES (?, ?, ?, ?, ?)");
+                $inserted = $insertStmt->execute([$user_id, $product_id, $quantity, $price, $total]);
+    
+                echo json_encode([
+                    "status" => $inserted ? 200 : 500,
+                    "message" => $inserted ? "Added to cart" : "Insert failed"
+                ]);
+            }
+    
+            break;
 
     default:
         echo json_encode(["status" => 405, "message" => "Method not allowed"]);

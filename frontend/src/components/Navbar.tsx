@@ -2,7 +2,7 @@ import { Menu, Sprout, X, User, LogOut, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = ({ flag, setflag }) => {
+const Navbar = ({ flag, setflag, cart_count}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -13,7 +13,7 @@ const Navbar = ({ flag, setflag }) => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-  }, [flag]);
+  }, [flag,cart_count]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");

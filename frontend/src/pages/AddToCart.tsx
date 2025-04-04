@@ -26,7 +26,8 @@ const AddToCart = () => {
         return JSON.parse(text);
       })
       .then((data) => {
-        console.log("Cart data:", data);
+        localStorage.setItem("Cart_data",JSON.stringify(data));
+        localStorage.setItem("Cart_count",data.data.length);
         if (data.status === 200 && data.data) {
           setCart(data.data);
         }
