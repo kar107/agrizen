@@ -5,6 +5,7 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
+
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import About from "./pages/About";
@@ -26,15 +27,19 @@ import SupplierCategoryManagement from "./pages/supplier/categories";
 import SupplierProductManagement from "./pages/supplier/products";
 import SupplierProfileManagement from "./pages/supplier/profile";
 import Checkout from "./pages/Checkout";
-import Orders from "./pages/orders";
+import Orders from "./pages/userorders";
+import AdminOrders from "./pages/admin/Orders";
+import SupplierOrders from "./pages/supplier/orders";// ✅ NEW IMPORT
 
 function Layout() {
   const location = useLocation();
   const hideNavbarFooter =
     location.pathname.startsWith("/admin") ||
     location.pathname.startsWith("/supplier");
-  const [cart_count, setCount] = useState(localStorage.getItem("Cart_count") || 0)
+
+  const [cart_count, setCount] = useState(localStorage.getItem("Cart_count") || 0);
   const [flag, setflag] = useState(true);
+
   return (
     <div className="min-h-screen flex flex-col">
       {!hideNavbarFooter && <Navbar flag={flag} setflag={setflag} cart_count={cart_count} />}
@@ -46,6 +51,7 @@ function Layout() {
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/orders" element={<AdminOrders />} /> {/* ✅ NEW ROUTE */}
           <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
           <Route path="/register" element={<Register />} />
           <Route
@@ -72,6 +78,9 @@ function Layout() {
           <Route path="/cart" element={<AddToCart cart_count={cart_count} setCount={setCount} />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/supplier/orders" element={<SupplierOrders />} />
+
+
         </Routes>
       </main>
       {!hideNavbarFooter && <Footer />}

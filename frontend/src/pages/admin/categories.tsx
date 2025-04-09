@@ -23,6 +23,8 @@ const CategoryManagement: React.FC = () => {
   });
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const categoriesPerPage = 5;
 
   const API_URL = "http://localhost/agrizen/backend/adminController/categoryController.php";
 
@@ -44,11 +46,11 @@ const CategoryManagement: React.FC = () => {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -57,7 +59,7 @@ const CategoryManagement: React.FC = () => {
 
     try {
       const dataToSubmit = { ...formData, user_id: userId };
-      
+
       let response;
       if (editing) {
         response = await axios.put(API_URL, JSON.stringify(dataToSubmit), {
@@ -101,13 +103,13 @@ const CategoryManagement: React.FC = () => {
     }
   };
 
-  const handleEdit = (category) => {
+  const handleEdit = (category: Category) => {
     setFormData({ ...category });
     setEditing(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: number) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -121,11 +123,7 @@ const CategoryManagement: React.FC = () => {
     if (result.isConfirmed) {
       try {
         await axios.delete(`${API_URL}?id=${id}`);
-        Swal.fire(
-          'Deleted!',
-          'Your category has been deleted.',
-          'success'
-        );
+        Swal.fire('Deleted!', 'Category has been deleted.', 'success');
         fetchCategories();
       } catch (error) {
         console.error("Error deleting category", error);
@@ -137,6 +135,12 @@ const CategoryManagement: React.FC = () => {
       }
     }
   };
+
+  // Pagination Logic
+  const indexOfLastCategory = currentPage * categoriesPerPage;
+  const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
+  const currentCategories = categories.slice(indexOfFirstCategory, indexOfLastCategory);
+  const totalPages = Math.ceil(categories.length / categoriesPerPage);
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -183,12 +187,12 @@ const CategoryManagement: React.FC = () => {
           </button>
         </form>
 
-        {/* Category List */}
-        <div className="mt-6 bg-white shadow rounded p-4">
+        {/* Category Table */}
+        <div className="mt-6 bg-white shadow rounded p-4 overflow-x-auto">
           <h2 className="text-xl font-bold mb-2">Categories</h2>
-          <table className="w-full border">
-            <thead>
-              <tr className="bg-gray-200">
+          <table className="min-w-full border text-sm">
+            <thead className="bg-gray-200">
+              <tr>
                 <th className="border p-2">ID</th>
                 <th className="border p-2">Name</th>
                 <th className="border p-2">Description</th>
@@ -197,15 +201,15 @@ const CategoryManagement: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {categories.map((category) => (
-                <tr key={category.id} className="border">
+              {currentCategories.map((category) => (
+                <tr key={category.id}>
                   <td className="border p-2">{category.id}</td>
                   <td className="border p-2">{category.name}</td>
                   <td className="border p-2">{category.description}</td>
                   <td className="border p-2">
                     <span className={`px-2 py-1 rounded-full text-xs ${
-                      category.status === "active" 
-                        ? "bg-green-100 text-green-800" 
+                      category.status === "active"
+                        ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
                     }`}>
                       {category.status}
@@ -214,13 +218,13 @@ const CategoryManagement: React.FC = () => {
                   <td className="border p-2">
                     <button
                       onClick={() => handleEdit(category)}
-                      className="bg-yellow-500 text-white px-2 py-1 rounded mr-2 hover:bg-yellow-600 transition"
+                      className="bg-yellow-500 text-white px-2 py-1 rounded mr-2 hover:bg-yellow-600"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(category.id)}
-                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                      className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                     >
                       Delete
                     </button>
@@ -229,6 +233,23 @@ const CategoryManagement: React.FC = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-center mt-4 gap-2">
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-3 py-1 rounded transition ${
+                  currentPage === i + 1
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

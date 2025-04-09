@@ -11,7 +11,7 @@ import {
   CardElement
 } from "@stripe/react-stripe-js";
 
-const stripePromise = loadStripe("pk_test_YourPublicKeyHere"); // Replace with your Stripe public key
+const stripePromise = loadStripe("pk_test_51RBvTeECSsdmHHbj0L5fJ4YrWB5kSZ89DJt4shxeDpSp1jsPk0wNqHGzPdLlbErAVIM4ofjhKjx2vNeOmC2IVZrQ00EDfpIWqS"); // Replace with your Stripe public key
 
 const CheckoutForm = ({
   totalAmount,

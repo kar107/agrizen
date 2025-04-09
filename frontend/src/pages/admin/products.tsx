@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import DashboardSidebar from "../../components/DashboardSidebar";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "sweetalert2";
 
 interface Product {
   id: number;
@@ -14,14 +14,12 @@ interface Product {
   status: string;
   created_at: string;
   user_id: number;
-  image: string; // Added image field 
+  image: string;
 }
 
 const ProductManagement: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
-    []
-  );
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [formData, setFormData] = useState<{
     id: number | null;
     name: string;
@@ -32,8 +30,8 @@ const ProductManagement: React.FC = () => {
     unit: string;
     status: string;
     user_id: number | null;
-    image: File | null; // Added image field
-    existingImage: string; // To track existing image when editing
+    image: File | null;
+    existingImage: string;
   }>({
     id: null,
     name: "",
@@ -51,10 +49,11 @@ const ProductManagement: React.FC = () => {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
 
-  const API_URL =
-    "http://localhost/agrizen/backend/adminController/productController.php";
-  const CATEGORY_API_URL =
-    "http://localhost/agrizen/backend/adminController/categoryController.php";
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const API_URL = "http://localhost/agrizen/backend/adminController/productController.php";
+  const CATEGORY_API_URL = "http://localhost/agrizen/backend/adminController/categoryController.php";
 
   useEffect(() => {
     fetchProducts();
@@ -89,9 +88,7 @@ const ProductManagement: React.FC = () => {
     }
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -118,7 +115,7 @@ const ProductManagement: React.FC = () => {
     formDataToSend.append("unit", formData.unit);
     formDataToSend.append("status", formData.status);
     formDataToSend.append("user_id", userId?.toString() || "");
-    
+
     if (formData.image) {
       formDataToSend.append("image", formData.image);
     }
@@ -182,13 +179,13 @@ const ProductManagement: React.FC = () => {
   };
 
   const handleEdit = (product: Product) => {
-    setFormData({ 
-      ...product, 
+    setFormData({
+      ...product,
       category_id: product.category_id,
       price: product.price,
       stock_quantity: product.stock_quantity,
       image: null,
-      existingImage: product.image 
+      existingImage: product.image,
     });
     setEditing(true);
   };
@@ -201,28 +198,27 @@ const ProductManagement: React.FC = () => {
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: 'Yes, delete it!',
     });
 
     if (result.isConfirmed) {
       try {
         await axios.delete(`${API_URL}?id=${id}`);
         fetchProducts();
-        Swal.fire(
-          'Deleted!',
-          'The product has been deleted.',
-          'success'
-        );
+        Swal.fire('Deleted!', 'The product has been deleted.', 'success');
       } catch (error) {
         console.error("Error deleting product", error);
-        Swal.fire(
-          'Error!',
-          'There was an error deleting the product.',
-          'error'
-        );
+        Swal.fire('Error!', 'There was an error deleting the product.', 'error');
       }
     }
   };
+
+  // Pagination logic
+  const indexOfLastProduct = currentPage * itemsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -260,9 +256,7 @@ const ProductManagement: React.FC = () => {
             >
               <option value="">Select Category</option>
               {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
+                <option key={category.id} value={category.id}>{category.name}</option>
               ))}
             </select>
             <input
@@ -304,9 +298,9 @@ const ProductManagement: React.FC = () => {
               {editing && formData.existingImage && (
                 <div className="mt-2">
                   <p className="text-sm text-gray-600">Current Image:</p>
-                  <img 
-                    src={`http://localhost/agrizen/backend/uploads/products/${formData.existingImage}`} 
-                    alt="Product" 
+                  <img
+                    src={`http://localhost/agrizen/backend/uploads/products/${formData.existingImage}`}
+                    alt="Product"
                     className="h-20 w-20 object-cover mt-1"
                   />
                 </div>
@@ -336,21 +330,23 @@ const ProductManagement: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {currentProducts.map((product) => (
                 <tr key={product.id} className="border">
                   <td className="border p-2">{product.id}</td>
                   <td className="border p-2">
                     {product.image && (
-                      <img 
-                        src={`http://localhost/agrizen/backend/uploads/products/${product.image}`} 
-                        alt={product.name} 
+                      <img
+                        src={`http://localhost/agrizen/backend/uploads/products/${product.image}`}
+                        alt={product.name}
                         className="h-12 w-12 object-cover"
                       />
                     )}
                   </td>
                   <td className="border p-2">{product.name}</td>
                   <td className="border p-2">${product.price}</td>
-                  <td className="border p-2">{product.stock_quantity} {product.unit}</td>
+                  <td className="border p-2">
+                    {product.stock_quantity} {product.unit}
+                  </td>
                   <td className="border p-2">
                     <button
                       onClick={() => handleEdit(product)}
@@ -369,6 +365,35 @@ const ProductManagement: React.FC = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-center mt-4 space-x-2">
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-3 py-1 rounded ${currentPage === 1 ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => paginate(page)}
+                className={`px-3 py-1 rounded ${currentPage === page ? 'bg-blue-700 text-white' : 'bg-blue-200'}`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1 rounded ${currentPage === totalPages ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>
