@@ -2,7 +2,7 @@ import { Menu, Sprout, X, User, LogOut, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = ({ flag, setflag, cart_count}) => {
+const Navbar = ({ flag, setflag, cart_count }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -13,7 +13,7 @@ const Navbar = ({ flag, setflag, cart_count}) => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-  }, [flag,cart_count]);
+  }, [flag, cart_count]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -73,6 +73,9 @@ const Navbar = ({ flag, setflag, cart_count}) => {
                     <div className="absolute right-0 mt-2 w-40 bg-white text-green-700 rounded-md shadow-lg z-50">
                       <Link to="/profile" className="block px-4 py-2 hover:bg-green-100">
                         Profile
+                      </Link>
+                      <Link to="/orders" className="block px-4 py-2 hover:bg-green-100">
+                        My Orders
                       </Link>
                       <button
                         onClick={handleLogout}
@@ -134,6 +137,9 @@ const Navbar = ({ flag, setflag, cart_count}) => {
                 <Link to="/profile" className="block hover:bg-green-600 px-3 py-2 rounded-md">
                   Profile
                 </Link>
+                <Link to="/orders" className="block hover:bg-green-600 px-3 py-2 rounded-md">
+                  My Orders
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-3 py-2 rounded-md hover:bg-green-600"
@@ -154,4 +160,3 @@ const Navbar = ({ flag, setflag, cart_count}) => {
 };
 
 export default Navbar;
-  

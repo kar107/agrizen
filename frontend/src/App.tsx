@@ -26,6 +26,7 @@ import SupplierCategoryManagement from "./pages/supplier/categories";
 import SupplierProductManagement from "./pages/supplier/products";
 import SupplierProfileManagement from "./pages/supplier/profile";
 import Checkout from "./pages/Checkout";
+import Orders from "./pages/orders";
 
 function Layout() {
   const location = useLocation();
@@ -70,6 +71,7 @@ function Layout() {
           <Route path="/productsingle/:id" element={<ProductSingle />} />
           <Route path="/cart" element={<AddToCart cart_count={cart_count} setCount={setCount} />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/orders" element={<Orders />} />
         </Routes>
       </main>
       {!hideNavbarFooter && <Footer />}
